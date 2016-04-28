@@ -1,86 +1,86 @@
 <?php
+
 namespace Skansing\Escapology\Router;
 
-use \Skansing\Escapology\Cacher,
-    \Skansing\Escapology\Dispatcher,
-    \Skansing\Escapology\Router,
-    \Skansing\Escapology\RouteFileParser,
-    \Skansing\Escapology\RouteFileParser\Regex as RegexRouteFileParser,
-    \Skansing\Escapology\Dispatcher\Regex as RegexDispatcher;
-  
-class Application implements Router {
- 
+use Skansing\Escapology\Cacher;
+use Skansing\Escapology\Dispatcher;
+use Skansing\Escapology\RouteFileParser;
+use Skansing\Escapology\RouteFileParser\Regex as RegexRouteFileParser;
+use Skansing\Escapology\Router;
+
+class Application implements Router
+{
     /**
-     * @var RouteFileParser $routeFileParser
+     * @var RouteFileParser
      */
     private $routeFileParser;
 
     /**
-     * @var Dispatcher $dispatcher
+     * @var Dispatcher
      */
     private $dispatcher;
 
     /**
-     * @var Cacher $cacher
+     * @var Cacher
      */
     private $cacher;
 
     /**
-     * @var string $cacheKey]
+     * @var string]
      */
     private $cacheKey;
 
     /**
-     * @var boolean $cacheInUse
+     * @var bool
      */
     private $cacheInUse = false;
 
   /**
-   * Application router
+   * Application router.
    *
    * Routes found routes to the new application and not found to the old
    *
-   * @param Dispatcher|null      $dispatcher      
+   * @param Dispatcher|null      $dispatcher
    * @param RouteFileParser|null $routeFileParser
    * @param Cacher $cacher
    * @param string $cacheKey
    */
   public function __construct(
-    Dispatcher $dispatcher,  
+    Dispatcher $dispatcher,
     RouteFileParser $routeFileParser = null,
     Cacher $cacher = null,
-    $cacheKey = null 
-  ){
-    $this->routeFileParser = $routeFileParser ?: new RegexRouteFileParser;
-    $this->dispatcher = $dispatcher;
-    $this->cacher = $cacher;
-    if($this->cacher) {
-      $this->cacheKey = $cacheKey ?: '__routeCache';  
-      $this->cacheInUse = true;
-    }
+    $cacheKey = null
+  ) {
+      $this->routeFileParser = $routeFileParser ?: new RegexRouteFileParser();
+      $this->dispatcher = $dispatcher;
+      $this->cacher = $cacher;
+      if ($this->cacher) {
+          $this->cacheKey = $cacheKey ?: '__routeCache';
+          $this->cacheInUse = true;
+      }
   }
 
   /**
-   * Routes to new or old application
-   * 
-   * @param  string $routesFile     
+   * Routes to new or old application.
+   *
+   * @param  string $routesFile
    */
   public function handle(
     $routesFile
-  ){
-    if($this->cacheInUse) {
-      $routeData = $this->cacher->get($this->cacheKey);  
-      if($routeData === false) {
-        $routeData = $this->routeFileParser->digest($routesFile);
-        $this->cacher->set($this->cacheKey, $routeData);
-      }  
-    } else {
-      $routeData = $this->routeFileParser->digest($routesFile);
-    }
-    $result = $this->dispatcher->dispatch(
+  ) {
+      if ($this->cacheInUse) {
+          $routeData = $this->cacher->get($this->cacheKey);
+          if ($routeData === false) {
+              $routeData = $this->routeFileParser->digest($routesFile);
+              $this->cacher->set($this->cacheKey, $routeData);
+          }
+      } else {
+          $routeData = $this->routeFileParser->digest($routesFile);
+      }
+      $result = $this->dispatcher->dispatch(
       $routeData
     );
 
-    return $result;
+      return $result;
   }
 }
