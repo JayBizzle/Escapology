@@ -1,16 +1,17 @@
 <?php
+
 namespace Skansing\Escapology\Test\RouteFileParser;
 
-use \Skansing\Escapology\RouteFileParser\Regex as RouteFileParser;
+use Skansing\Escapology\RouteFileParser\Regex as RouteFileParser;
 
-class RegexTest extends \PHPUnit_Framework_TestCase {
+class RegexTest extends \PHPUnit_Framework_TestCase
+{
+    private $routeFileParser;
 
-  private $routeFileParser;
-
-  public function setup() 
-  {
-    $this->routeFileParser = new RouteFileParser();
-  }
+    public function setup()
+    {
+        $this->routeFileParser = new RouteFileParser();
+    }
 
   /**
    * @expectedException \Exception
@@ -18,7 +19,7 @@ class RegexTest extends \PHPUnit_Framework_TestCase {
    */
   public function testThrowsExceptionIfRouteFileNotFound()
   {
-    $this->routeFileParser->digest(__DIR__.'/missing.php');
+      $this->routeFileParser->digest(__DIR__.'/missing.php');
   }
 
   /**
@@ -27,118 +28,120 @@ class RegexTest extends \PHPUnit_Framework_TestCase {
    */
   public function testThrowsExceptionIfRouteFileIsEmpty()
   {
-    $this->getDigestedFromFixture('emptyRoutes.php');
+      $this->getDigestedFromFixture('emptyRoutes.php');
   }
 
-  public function testBuildsVerbKeysFromRouteFile()
-  {
-    $routeRegexMap = $this->getDigestedFromFixture('routes.php'); 
-    foreach(['GET', 'POST', 'PUT'] as $verb) {
-      $this->assertArrayHasKey($verb, $routeRegexMap);
+    public function testBuildsVerbKeysFromRouteFile()
+    {
+        $routeRegexMap = $this->getDigestedFromFixture('routes.php');
+        foreach (['GET', 'POST', 'PUT'] as $verb) {
+            $this->assertArrayHasKey($verb, $routeRegexMap);
+        }
     }
-  }
 
-  public function testRoutesHasVerbKeyAsConstant() {
-    $routes = $this->getRouteFileFixture('routes.php');
-    $this->assertSame(
+    public function testRoutesHasVerbKeyAsConstant()
+    {
+        $routes = $this->getRouteFileFixture('routes.php');
+        $this->assertSame(
       $routes[0][RouteFileParser::VERB],
       'GET'
     );
-  }
+    }
 
-  public function testRoutesHasUriKeyAsConstant() {
-    $routes = $this->getRouteFileFixture('routes.php');
-    $this->assertSame(
+    public function testRoutesHasUriKeyAsConstant()
+    {
+        $routes = $this->getRouteFileFixture('routes.php');
+        $this->assertSame(
       $routes[0][RouteFileParser::URI],
       '/'
     );
-  }
+    }
 
-  public function testRouteRegexHasRegexPrefixAsConstant() 
-  {
-    $routeRegexMap = $this->getDigestedFromFixture('routes.php');    
-    $this->assertStringStartsWith(
+    public function testRouteRegexHasRegexPrefixAsConstant()
+    {
+        $routeRegexMap = $this->getDigestedFromFixture('routes.php');
+        $this->assertStringStartsWith(
       RouteFileParser::REGEX_PREFIX, $routeRegexMap['GET']
     );
-  }
+    }
 
-  public function testRouteRegexHasSeparatorAsConstant() 
-  {
-    $routesFile = 'twoRoutes.php';
-    $routes = require __DIR__.'/../FixtureData/'.$routesFile;
-    $routeRegexMap = $this->getDigestedFromFixture('twoRoutes.php');
-    $offset = strpos($routeRegexMap['GET'], $routes[0][1]);
-    $uriLength = strlen($routes[0][1]);
-    $separatorTokenOffset = $offset + $uriLength;
-    $this->assertSame(
+    public function testRouteRegexHasSeparatorAsConstant()
+    {
+        $routesFile = 'twoRoutes.php';
+        $routes = require __DIR__.'/../FixtureData/'.$routesFile;
+        $routeRegexMap = $this->getDigestedFromFixture('twoRoutes.php');
+        $offset = strpos($routeRegexMap['GET'], $routes[0][1]);
+        $uriLength = strlen($routes[0][1]);
+        $separatorTokenOffset = $offset + $uriLength;
+        $this->assertSame(
       RouteFileParser::REGEX_SEPARATOR,
-      substr($routeRegexMap['GET'], $separatorTokenOffset, 1)  
+      substr($routeRegexMap['GET'], $separatorTokenOffset, 1)
     );
-  }
+    }
 
-  public function testRegexHasSeparatorIsNotAddedToLastRoute() 
-  {
-    $routesFile = 'twoRoutes.php';
-    $routes = require __DIR__.'/../FixtureData/'.$routesFile;
-    $routeRegexMap = $this->getDigestedFromFixture('twoRoutes.php');
-    $offset = strpos($routeRegexMap['GET'], $routes[1][1]);
-    $uriLength = strlen($routes[1][1]);
-    $separatorTokenOffset = $offset + $uriLength;
-    $this->assertNotSame(
+    public function testRegexHasSeparatorIsNotAddedToLastRoute()
+    {
+        $routesFile = 'twoRoutes.php';
+        $routes = require __DIR__.'/../FixtureData/'.$routesFile;
+        $routeRegexMap = $this->getDigestedFromFixture('twoRoutes.php');
+        $offset = strpos($routeRegexMap['GET'], $routes[1][1]);
+        $uriLength = strlen($routes[1][1]);
+        $separatorTokenOffset = $offset + $uriLength;
+        $this->assertNotSame(
       RouteFileParser::REGEX_SEPARATOR,
-      substr($routeRegexMap['GET'], $separatorTokenOffset, 1)  
+      substr($routeRegexMap['GET'], $separatorTokenOffset, 1)
     );
-  }
+    }
 
-  public function testRouteRegexHasRegexAffixAsConstant() 
-  {
-    $routeRegexMap = $this->getDigestedFromFixture('routes.php');
-    
-    $this->assertStringEndsWith(
+    public function testRouteRegexHasRegexAffixAsConstant()
+    {
+        $routeRegexMap = $this->getDigestedFromFixture('routes.php');
+
+        $this->assertStringEndsWith(
       RouteFileParser::REGEX_AFFIX, $routeRegexMap['GET']
     );
-  }
+    }
 
-  public function testRouteRegexHasRegexGroupSeparatorAsConstant()
-  {
-    $routeRegexMap = $this->getDigestedFromFixture('twoRoutes.php');
-    $this->assertTrue(
-      strpos($routeRegexMap['GET'], RouteFileParser::REGEX_SEPARATOR) !== FALSE
+    public function testRouteRegexHasRegexGroupSeparatorAsConstant()
+    {
+        $routeRegexMap = $this->getDigestedFromFixture('twoRoutes.php');
+        $this->assertTrue(
+      strpos($routeRegexMap['GET'], RouteFileParser::REGEX_SEPARATOR) !== false
     );
-  }
+    }
 
-  public function testGroupRegexIsAppendedOnASingleRoute()
-  {
-    $routeRegexMap = $this->getDigestedFromFixture('singleRoute.php');
-    $this->assertStringStartsWith(
+    public function testGroupRegexIsAppendedOnASingleRoute()
+    {
+        $routeRegexMap = $this->getDigestedFromFixture('singleRoute.php');
+        $this->assertStringStartsWith(
       RouteFileParser::REGEX_PREFIX, $routeRegexMap['GET']
     );
-  }
+    }
 
-  public function testBuildsAGroupBasedRegexOutOfRoutesForEachVerb()
-  {
-       $routeRegexMap = $this->getDigestedFromFixture('routes.php');
-       $this->assertSame(
+    public function testBuildsAGroupBasedRegexOutOfRoutesForEachVerb()
+    {
+        $routeRegexMap = $this->getDigestedFromFixture('routes.php');
+        $this->assertSame(
         '~^(?:/|/abc|/a/b/c|/ab|)$~',
         $routeRegexMap['GET']
       );
-      $this->assertSame(
+        $this->assertSame(
         '~^(?:/abc|/ab)$~',
         $routeRegexMap['POST']
       );
-      $this->assertSame(
+        $this->assertSame(
         '~^(?:/abc|)$~',
         $routeRegexMap['PUT']
       );
-  }
+    }
 
-  private function getRouteFileFixture($routeFileName)
-  {
-    return require __DIR__.'/../FixtureData/'.$routeFileName;
-  }
+    private function getRouteFileFixture($routeFileName)
+    {
+        return require __DIR__.'/../FixtureData/'.$routeFileName;
+    }
 
-  private function getDigestedFromFixture($routeFileName)
-  {
-    return $this->routeFileParser->digest(__DIR__.'/../FixtureData/'.$routeFileName); 
-  }
+    private function getDigestedFromFixture($routeFileName)
+    {
+        return $this->routeFileParser->digest(__DIR__.'/../FixtureData/'.$routeFileName);
+    }
 }

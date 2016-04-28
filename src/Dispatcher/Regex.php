@@ -1,16 +1,17 @@
 <?php
+
 namespace Skansing\Escapology\Dispatcher;
 
-use \Skansing\Escapology\Dispatcher;
-  
-class Regex implements Dispatcher {
- 
+use Skansing\Escapology\Dispatcher;
+
+class Regex implements Dispatcher
+{
     /**
-     * @var string $uri
+     * @var string
      */
     private $uri;
     /**
-     * @var string $verb
+     * @var string
      */
     private $verb;
 
@@ -21,23 +22,24 @@ class Regex implements Dispatcher {
   public function __construct(
     $verb,
     $uri
-  ){
-    $this->verb = $verb;
-    $this->uri = $uri;
+  ) {
+      $this->verb = $verb;
+      $this->uri = $uri;
   }
 
   /**
-   * Returns if the route was found or not
-   * 
-   * @param Array $routesData
+   * Returns if the route was found or not.
+   *
+   * @param array $routesData
+   *
    * @return int
    */
   public function dispatch($routesData)
   {
-    if(empty($routesData)) {
-      return self::NOT_FOUND;
-    }
+      if (empty($routesData)) {
+          return self::NOT_FOUND;
+      }
 
-   return preg_match($routesData[$this->verb], $this->uri) ? self::FOUND : self::NOT_FOUND;
+      return preg_match($routesData[$this->verb], $this->uri) ? self::FOUND : self::NOT_FOUND;
   }
 }

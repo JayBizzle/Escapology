@@ -1,6 +1,8 @@
 <?php
+
 namespace Skansing\Escapology;
 
-Interface RouteFileParser {
-  public function digest($file);
+interface RouteFileParser
+{
+    public function digest($file);
 }
